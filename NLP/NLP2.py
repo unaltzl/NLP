@@ -70,50 +70,53 @@ plt.show()
 #################
 #FONKSİYONLAŞTIRMA
 #################
-def data_prep(dataframe,barplot= False,wordcloud =False):
+def data_prep(dataframe, barplot=False, wordcloud=False):
     def clean_text(dataframe):
         dataframe["text"] = dataframe["text"].str.lower()
         dataframe["text"] = dataframe["text"].str.replace('[^\w\s]', '')
         dataframe["text"] = dataframe["text"].str.replace('\d', '')
-        return df
-    clean_text(df)
+        return dataframe  # Corrected from df to dataframe
+
+    clean_text(dataframe)
 
     def remove_stopwords(dataframe):
         sw = stopwords.words('english')
         dataframe["text"] = dataframe["text"].apply(lambda x: " ".join(x for x in str(x).split() if x not in sw))
-        return df
-    remove_stopwords(df)
+        return dataframe  # Corrected from df to dataframe
 
-    #rare_words
-    temp_df = pd.Series(' '.join(df['text']).split()).value_counts()
+    remove_stopwords(dataframe)
+
+    # rare_words
+    temp_df = pd.Series(' '.join(dataframe['text']).split()).value_counts()
     drops = temp_df[temp_df <= 1500]
-    df['text'] = df['text'].apply(lambda x: " ".join(x for x in x.split() if x not in drops))
+    dataframe['text'] = dataframe['text'].apply(lambda x: " ".join(x for x in x.split() if x not in drops))
 
-    #lemmazation
-    df["text"].apply(lambda x: TextBlob(x).words).head()
-    df['text'] = df['text'].apply(lambda x: " ".join([Word(word).lemmatize() for word in x.split()]))
+    # lemmatization
+    dataframe["text"].apply(lambda x: TextBlob(x).words).head()
+    dataframe['text'] = dataframe['text'].apply(lambda x: " ".join([Word(word).lemmatize() for word in x.split()]))
 
-    #frekans
-    tf = df["text"].apply(lambda x: pd.value_counts(x.split(" "))).sum(axis=0).reset_index()
+    # frequency
+    tf = dataframe["text"].apply(lambda x: pd.value_counts(x.split(" "))).sum(axis=0).reset_index()
     tf.columns = ["words", "tf"]
     tf.sort_values("tf", ascending=False)
 
-    #barplot
+    # barplot
     if barplot:
-    tf[tf["tf"] > 7500].plot.barh(x="words", y="tf")
-    plt.show(block=True)
+        tf[tf["tf"] > 7500].plot.barh(x="words", y="tf")
+        plt.show(block=True)
 
-    #wordcloud
+    # wordcloud
     if wordcloud:
-    text = " ".join(i for i in df.text)
-    wordcloud = WordCloud().generate(text)
-    plt.imshow(wordcloud, interpolation="bilinear")
-    plt.axis("off")
-    plt.show(block=True)
+        text = " ".join(i for i in dataframe.text)
+        wordcloud = WordCloud().generate(text)
+        plt.imshow(wordcloud, interpolation="bilinear")
+        plt.axis("off")
+        plt.show(block=True)
 
-    return df
+    return dataframe
 
-data_prep(df,barplot=True, wordcloud=True)
+# Example usage
+data_prep(df, barplot=False, wordcloud=True)
 
 
 
